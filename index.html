@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>കൈത്തൊഴിൽ മാർക്കറ്റ് പ്ലേസ് </title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        /* ... (Your existing styles are kept here) ... */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding-bottom: 70px;
+        }
+        .app-container {
+            max-width: 500px;
+            margin: 20px auto;
+            background: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+            min-height: 90vh;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 1-5px;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .content {
+            padding: 0 15px 15px 15px;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .image-banner-carousel {
+            margin: 0 -15px 15px -15px;
+        }
+        .carousel-item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        .text-banner-carousel {
+            background-color: #ffc107;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .text-carousel-item {
+            color: #333;
+            text-align: center;
+            font-weight: bold;
+        }
+        .product-image-display {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+            border-bottom: 1px solid #ccc;
+        }
+        .product-image-placeholder {
+            height: 120px;
+            background-color: #e9ecef;
+            text-align: center;
+            line-height: 120px;
+            font-size: 0.8em;
+            color: #6c757d;
+            border-bottom: 1px solid #ccc;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            padding: 0 5px;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+        .nav-item-bottom {
+            flex-grow: 1;
+            text-align: center;
+            padding: 8px 0;
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.8em;
+            border-top: 2px solid transparent;
+            position: relative; 
+            transition: all 0.2s;
+        }
+        .nav-item-bottom.active {
+            color: #007bff;
+            border-top-color: #007bff;
+        }
+        .cart-badge {
+            position: absolute;
+            top: 5px;
+            right: 15%; 
+            padding: 2px 6px;
+            border-radius: 50%;
+            background-color: red;
+            color: white;
+            font-size: 0.7em;
+            line-height: 1;
+            z-index: 10;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 0 15px;
+        }
+        .category-btn {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 8px 5px;
+            font-size: 0.75em;
+        }
+        .seller-order-item {
+            display: flex;
+        }
+        .seller-order-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        .cart-item-row {
+            display: flex;
+            align-items: center;
+        }
+        .cart-item-row img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        #payFeeButton {
+            background-color: #ffc107; 
+            color: #333;
+            font-weight: bold;
+        }
+        
+        /* Custom Style for Professional App Download Button */
+        #appDownloadButton {
+            background-color: #17a2b8; /* Info/Cyan for professionalism */
+            color: white;
+            font-weight: bold;
+            font-size: 1.1em;
+            padding: 12px 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
+            text-decoration: none; /* Ensure the link doesn't look like a link */
+        }
+        #appDownloadButton:hover {
+            background-color: #138496; 
+        }
+        
+        /* Custom Style for the Alert Modal to match the screenshot dark/modern look */
+        #supabaseAlertModal .modal-content {
+            background-color: #343a40; /* Dark background */
+            color: white; /* White text */
+            border-radius: 10px;
+        }
+        #supabaseAlertModal .modal-header {
+            border-bottom: none;
+        }
+        #supabaseAlertModal .modal-body {
+            font-size: 1.1em;
+            text-align: center;
+            padding-top: 0;
+            padding-bottom: 20px;
+        }
+        #supabaseAlertModal .modal-footer {
+            border-top: none;
+            justify-content: flex-end; /* OK button to the right */
+            padding-top: 0;
+        }
+        #supabaseAlertModal .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            font-weight: bold;
+            padding: 5px 15px;
+        }
+    </style>
+
+    <!-- ********** JavaScript Functions ********** -->
+    <script>
+        // GLOBAL VARIABLES
+
+        // ********** ഇവിടെ നിങ്ങളുടെ യഥാർത്ഥ വിവരങ്ങൾ നൽകുക (പൂരിപ്പിക്കുക) **********
+        const SUPABASE_URL = 'https://rcfdmjdcyjszcambxpko.supabase.co'; // പൂരിപ്പിക്കുക
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjZmRtamRjeWpzemNhbWJ4cGtvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwNzg5MjgsImV4cCI6MjA3OTY1NDkyOH0.uJw9idxG0-WMbxYgNBOM7nmDruteT9Dgi6uvAz2OIy8';
+        
+        // UPI LINK MODIFIED: Use placeholder values now
+        let ADMIN_UPI_PAYMENT_LINK = 'upi://pay?pa=bmfurniture@ibl&pn=LocalMarketAdmin&am=25.00&cu=INR&tn=ProductListingFee'; // bmfurniture@ibl
+        let APP_APK_DOWNLOAD_LINK = 'https://rashikarashika966-pixel.github.io/malayali_1app.apk/malayali_1app.apk'; // പൂരിപ്പിക്കുക
+        let UPI_QR_CODE_IMAGE_URL = 'https://via.placeholder.com/300x300?text=Scan+to+Pay+Rs.25+via+UPI'; 
+        
+        let ADMIN_WHATSAPP_NUMBER = '919526605590'; 
+
+        let GLOBAL_BANNER_URLS = []; 
+        
+        let supabase = null; 
+        
+        let localProducts = []; 
+        let cartItems = []; 
+        let currentProduct = null; 
+        
+        let currentSeller = null; 
+        
+        let isFeePaidForCurrentListing = false; 
+
+        // *** അഡ്മിൻ പാനലിൽ സെറ്റ് ചെയ്ത പാത്തുകൾ ഇവിടെയും ചേർക്കുന്നു ***
+        const BANNER_BUCKET = 'products_images'; 
+        const BANNER_PATH = 'public/banners'; 
+
+        const KERALA_JILLAS = [
+            "തിരുവനന്തപുരം", "കൊല്ലം", "പത്തനംതിട്ട", "ആലപ്പുഴ", "കോട്ടയം", 
+            "ഇടുക്കി", "എറണാകുളം", "തൃശ്ശൂർ", "പാലക്കാട്", "മലപ്പുറം", 
+            "കോഴിക്കോട്", "വയനാട്", "കണ്ണൂർ", "കാസർഗോഡ്"
+        ];
+        
+        
+        // --- CORE FUNCTIONS ---
+        function updateCartBadge() {
+            const badge = document.getElementById('cart-badge');
+            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            if (totalItems > 0) {
+                badge.textContent = totalItems;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        function switchScreen(screenId) {
+            
+            if (screenId === 'seller-screen' && !currentSeller) {
+                showAuthScreen(); 
+                return;
+            }
+            
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+            
+            document.querySelectorAll('.nav-item-bottom').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-screen') === screenId) {
+                    link.classList.add('active');
+                }
+            });
+
+            const header = document.getElementById('appHeader');
+            if (screenId === 'home-screen') {
+                header.textContent = 'കൈത്തൊഴിൽ മാർക്കറ്റ് പ്ലേസ്';
+                loadBannersFromSupabase(); // ബാനറുകൾ ലോഡ് ചെയ്യുന്നു
+                if (supabase) loadProducts(localProducts); 
+                else loadProducts([]); 
+            }
+            else if (screenId === 'cart-screen') {
+                header.textContent = 'കാർട്ട്';
+                loadCart(); 
+            }
+            else if (screenId === 'orders-screen') {
+                header.textContent = 'എൻ്റെ ഓർഡറുകൾ';
+                loadUserOrders(); 
+            }
+            else if (screenId === 'seller-screen') {
+                header.textContent = `വിൽപനക്കാരന്റെ ഡാഷ്‌ബോർഡ് (${currentSeller ? currentSeller.name : ''})`; 
+                if (supabase) {
+                    loadSellerProducts(); 
+                    loadSellerOrderList(); 
+                }
+                isFeePaidForCurrentListing = false; 
+                document.getElementById('listProductButton').disabled = true;
+                document.getElementById('payFeeButton').disabled = false;
+                document.getElementById('feeStatusMessage').innerHTML = '';
+                renderSelectOptions(); 
+                loadSellerDetails(); 
+            }
+            else if (screenId === 'product-detail-screen') header.textContent = 'ഉൽപ്പന്ന വിവരങ്ങൾ';
+            else if (screenId === 'checkout-form-screen') header.textContent = 'ഓർഡർ നൽകുക';
+            else if (screenId === 'cart-checkout-screen') header.textContent = 'കാർട്ട് ഓർഡർ നൽകുക';
+            else if (screenId === 'edit-product-screen') header.textContent = 'ഉൽപ്പന്നം എഡിറ്റ് ചെയ്യുക';
+            else if (screenId === 'auth-screen') header.textContent = 'വിൽപനക്കാരൻ ലോഗിൻ / രജിസ്റ്റർ';
+            
+            window.scrollTo(0, 0); 
+            updateCartBadge(); 
+        }
+
+        // --- NEW: Custom Alert Modal Function ---
+        function showSupabaseAlertModal(message, callback = null) {
+            document.getElementById('supabaseAlertBody').textContent = message;
+            const alertModal = new bootstrap.Modal(document.getElementById('supabaseAlertModal'));
+            alertModal.show();
+            
+            const okButton = document.getElementById('supabaseAlertOkButton');
+            okButton.onclick = () => {
+                alertModal.hide();
+                if (callback) callback();
+            };
+        }
+        
+        // --- Supabase Connection & Data Fetch ---
+        async function loadBannersFromSupabase() {
+             if (!supabase) return;
+             
+             try {
+                // *** ഇവിടെ ബാനർ പാത്ത് മാത്രം ഉപയോഗിക്കുന്നു ***
+                const folderName = BANNER_PATH.replace('public/', '');
+                const { data, error } = await supabase.storage.from(BANNER_BUCKET).list(folderName, {
+                    limit: 50, 
+                });
+                
+                if (error) throw new Error(error.message);
+                
+                // *** ബാനർ URL കൾ ശരിയായ പാത്ത് ഉപയോഗിച്ച് ജനറേറ്റ് ചെയ്യുന്നു ***
+                GLOBAL_BANNER_URLS = data
+                    .filter(f => f.name !== '.emptyFolderPlaceholder')
+                    .map(file => supabase.storage.from(BANNER_BUCKET).getPublicUrl(`${folderName}/${file.name}`).data.publicUrl);
+                    
+                renderBannerCarousel();
+             } catch(e) {
+                 console.error("Banner fetch failed:", e.message);
+                 GLOBAL_BANNER_URLS = ["https://via.placeholder.com/500x180?text=ബാനറുകൾ+ലഭ്യമല്ല"]; // Placeholder image size adjusted
+                 renderBannerCarousel();
+             }
+        }
+
+        function initializeSupabase() {
+            const url = SUPABASE_URL;
+            const key = SUPABASE_ANON_KEY;
+
+            if (url.includes('YOUR_ACTUAL_SUPABASE_URL_HERE') || key.includes('YOUR_ACTUAL_SUPABASE_ANON_KEY_HERE')) {
+                const message = "Supabase കണക്ഷൻ പിശക്. കണക്ഷൻ ശരിയാക്കുക.";
+                showSupabaseAlertModal(message, () => {
+                    switchScreen('home-screen'); 
+                });
+                return;
+            }
+
+            try {
+                supabase = window.supabase.createClient(url, key);
+                testSupabaseConnection();
+            } catch (e) {
+                const message = "Supabase കണക്ഷൻ പിശക്. ഡാറ്റ ലോഡ് ചെയ്യാൻ കഴിയില്ല.";
+                showSupabaseAlertModal(message, () => {
+                    switchScreen('home-screen'); 
+                });
+            }
+        }
+        
+        async function testSupabaseConnection() {
+             try {
+                 const { data: products, error } = await supabase.from('products').select('*');
+
+                 if (error) {
+                     const message = `Supabase RLS/ഡാറ്റാബേസ് പിശക്: ${error.message}.`;
+                     showSupabaseAlertModal(message, () => {
+                         switchScreen('home-screen'); 
+                     });
+                 } else {
+                     localProducts = products.map(p => ({
+                        id: p.id,
+                        name: p.name,
+                        price: parseFloat(p.price) || 0, 
+                        seller: p.seller_name || 'അജ്ഞാതം', 
+                        image_url: p.image_url, 
+                        jilla: p.jilla,          
+                        area: p.area,            
+                        delivery_charge: parseFloat(p.delivery_charge) || 0,
+                        description: p.description, 
+                        status: p.status || 'Active', 
+                     }));
+                     console.log(`Supabase കണക്റ്റ് ചെയ്തു! (${localProducts.length} ഉൽപ്പന്നങ്ങൾ ലോഡ് ചെയ്തു)`);
+                     loadBannersFromSupabase();
+                     loadProducts();
+                     switchScreen('home-screen');
+                 }
+             } catch (e) {
+                 const message = `കണക്ഷൻ ടെസ്റ്റ് പരാജയം: ${e.message}.`;
+                 showSupabaseAlertModal(message, () => {
+                     switchScreen('home-screen');
+                 });
+             }
+        }
+        
+        // --- Seller Auth Functions (Unchanged) ---
+        function showAuthScreen() {
+             switchScreen('auth-screen');
+             document.getElementById('login-form-container').style.display = 'block';
+             document.getElementById('register-form-container').style.display = 'none';
+             document.getElementById('auth-message').innerHTML = `<div class="alert alert-info">Supabase-ൽ രജിസ്റ്റർ ചെയ്ത ഫോൺ നമ്പറും പാസ്‌വേർഡും ഉപയോഗിക്കുക.</div>`;
+             renderSelectOptions(); 
+        }
+
+        function toggleAuthForm(showRegister) {
+             document.getElementById('login-form-container').style.display = showRegister ? 'none' : 'block';
+             document.getElementById('register-form-container').style.display = showRegister ? 'block' : 'none';
+             document.getElementById('auth-message').innerHTML = ''; 
+             renderSelectOptions(); 
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            if (!supabase) return alert('Supabase കണക്റ്റ് ചെയ്തിട്ടില്ല!');
+            
+            const phone = document.getElementById('loginPhone').value; 
+            const password = document.getElementById('loginPassword').value; 
+            const msgDiv = document.getElementById('auth-message');
+
+            msgDiv.innerHTML = `<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> ലോഗിൻ ശ്രമിക്കുന്നു...</div>`;
+
+            try {
+                const { data: sellers, error } = await supabase
+                    .from('sellers')
+                    .select('*')
+                    .eq('phone', phone)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') throw new Error(error.message);
+
+                if (sellers && sellers.password === password) { 
+                    currentSeller = {
+                        id: sellers.id,
+                        name: sellers.store_name, 
+                        contactName: sellers.contact_name,
+                        jilla: sellers.jilla,
+                        phone: sellers.phone,
+                        whatsapp: sellers.whatsapp,
+                    };
+                    msgDiv.innerHTML = `<div class="alert alert-success">ലോഗിൻ വിജയം! (${currentSeller.name})</div>`;
+                    setTimeout(() => switchScreen('seller-screen'), 500);
+                } else {
+                    currentSeller = null;
+                    msgDiv.innerHTML = `<div class="alert alert-danger">തെറ്റായ ഫോൺ നമ്പറോ പാസ്‌വേർഡോ.</div>`;
+                }
+            } catch(e) {
+                msgDiv.innerHTML = `<div class="alert alert-danger">ലോഗിൻ പരാജയപ്പെട്ടു: ${e.message}</div>`;
+            }
+        }
+
+        async function handleRegister(e) { 
+            e.preventDefault();
+            if (!supabase) return alert('Supabase കണക്റ്റ് ചെയ്തിട്ടില്ല!');
+            
+            const contactName = document.getElementById('registerContactName').value;
+            const shopName = document.getElementById('registerShopName').value;
+            const jilla = document.getElementById('registerJilla').value;
+            const phone = document.getElementById('registerPhone').value;
+            const whatsapp = document.getElementById('registerWhatsApp').value; 
+            const password = document.getElementById('registerPassword').value;
+            const msgDiv = document.getElementById('auth-message');
+
+            if (!contactName || !shopName || !jilla || !phone || !whatsapp || !password) {
+                msgDiv.innerHTML = `<div class="alert alert-warning">എല്ലാ ഫീൽഡുകളും പൂരിപ്പിക്കുക.</div>`;
+                return;
+            }
+            
+            const { data: existing, error: checkError } = await supabase.from('sellers').select('phone').eq('phone', phone);
+            if (existing && existing.length > 0) {
+                 msgDiv.innerHTML = `<div class="alert alert-danger">ഈ ഫോൺ നമ്പർ ഉപയോഗിച്ച് അക്കൗണ്ട് നിലവിലുണ്ട്.</div>`;
+                 return;
+            }
+
+            const newSellerData = {
+                store_name: shopName, 
+                contact_name: contactName,
+                jilla: jilla,
+                phone: phone,
+                whatsapp: whatsapp,
+                password: password, 
+                is_approved: false
+            };
+            
+            try {
+                const { data, error } = await supabase.from('sellers').insert([newSellerData]).select().single();
+                
+                if (error) throw new Error(error.message);
+                
+                currentSeller = {
+                    id: data.id,
+                    name: data.store_name, 
+                    contactName: data.contact_name,
+                    jilla: data.jilla,
+                    phone: data.phone,
+                    whatsapp: data.whatsapp,
+                };
+                
+                msgDiv.innerHTML = `<div class="alert alert-success">രജിസ്ട്രേഷൻ വിജയം! ലോഗിൻ ചെയ്യുന്നു...</div>`;
+                
+                e.target.reset(); 
+                setTimeout(() => switchScreen('seller-screen'), 500);
+            } catch(e) {
+                 msgDiv.innerHTML = `<div class="alert alert-danger">രജിസ്ട്രേഷൻ പരാജയപ്പെട്ടു: ${e.message}</div>`;
+            }
+        }
+        
+        function logoutSeller() {
+             currentSeller = null;
+             alert("ലോഗൗട്ട് ചെയ്തു.");
+             switchScreen('home-screen');
+        }
+
+        function loadSellerDetails() {
+            const detailsDiv = document.getElementById('seller-details-card');
+            if (currentSeller) {
+                detailsDiv.innerHTML = `
+                    <h5 class="card-title text-primary mb-1"><i class="fas fa-id-badge"></i> എൻ്റെ വിവരങ്ങൾ:</h5>
+                    <p class="mb-1 small">സ്ഥാപനം: <strong>${currentSeller.name}</strong></p>
+                    <p class="mb-1 small">ബന്ധപ്പെടാനുള്ള പേര്: <strong>${currentSeller.contactName}</strong></p>
+                    <p class="mb-1 small">ഫോൺ: <strong>${currentSeller.phone}</strong></p>
+                    <p class="mb-1 small">WhatsApp: <strong>${currentSeller.whatsapp || 'N/A'}</strong></p>
+                    <p class="mb-0 small">ജില്ല: <strong>${currentSeller.jilla}</strong></p>
+                `;
+            } else {
+                detailsDiv.innerHTML = '<div class="alert alert-warning small mb-0">വിൽപ്പനക്കാരൻ്റെ വിവരങ്ങൾ ലഭ്യമല്ല.</div>';
+            }
+        }
+
+        function contactAdminOnWhatsApp() {
+            if (!ADMIN_WHATSAPP_NUMBER || ADMIN_WHATSAPP_NUMBER.includes('YOUR_ADMIN_WHATSAPP_NUMBER')) {
+                alert("അഡ്മിൻ WhatsApp നമ്പർ കോഡിൽ സജ്ജീകരിച്ചിട്ടില്ല.");
+                return;
+            }
+            const message = encodeURIComponent(`ഹായ് അഡ്മിൻ, ഞാൻ ${currentSeller.name} ആണ്. എനിക്കൊരു സപ്പോർട്ട് ആവശ്യമുണ്ട്.`);
+            const url = `https://wa.me/${ADMIN_WHATSAPP_NUMBER}?text=${message}`;
+            window.open(url, '_blank');
+        }
+        
+        // --- DYNAMIC RENDERING FUNCTION (HOME) & PRODUCT DETAIL ---
+        
+        function renderBannerCarousel() {
+            const inner = document.querySelector('#imageBannerCarousel .carousel-inner');
+            inner.innerHTML = '';
+            
+            const currentBanners = GLOBAL_BANNER_URLS;
+
+            if (currentBanners.length === 0) {
+                 // Placeholders should match the image height set in CSS (180px)
+                 inner.innerHTML = '<div class="carousel-item active"><img src="https://via.placeholder.com/500x180?text=ബാനറുകൾ+ലഭ്യമല്ല" class="d-block w-100" alt="Placeholder Banner"></div>';
+                 return;
+            }
+            
+            currentBanners.forEach((url, index) => {
+                const activeClass = index === 0 ? 'active' : '';
+                inner.innerHTML += `
+                    <div class="carousel-item ${activeClass}">
+                        <img src="${url}" class="d-block w-100" alt="Banner ${index + 1}">
+                    </div>
+                `;
+            });
+        }
+        
+        function loadProducts(products = localProducts) {
+            const productListDiv = document.getElementById('product-list');
+            productListDiv.innerHTML = ''; 
+
+            const activeProducts = products.filter(p => p.status === 'Active' || !p.status); 
+
+            activeProducts.forEach(product => {
+                const productPrice = parseFloat(product.price) || 0;
+                const deliveryCharge = parseFloat(product.delivery_charge) || 0;
+
+                let imageElement;
+                if (product.image_url && product.image_url.startsWith('http')) {
+                    imageElement = `<img src="${product.image_url}" class="product-image-display" alt="${product.name} Image" onerror="this.onerror=null; this.outerHTML='<div class=\'product-image-placeholder\'>ചിത്രം ലോഡ് ചെയ്യുന്നില്ല</div>';">`; 
+                } else {
+                    imageElement = `<div class="product-image-placeholder">ചിത്രം ലഭ്യമല്ല: <i class="fas fa-image"></i></div>`;
+                }
+
+                const productHtml = `
+                    <div class="card mb-3">
+                        ${imageElement} 
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-success">${product.name}</h6>
+                            <p class="card-text mb-1 small">വില്പനക്കാരൻ: <strong>${product.seller || 'അജ്ഞാതം'}</strong> (${product.jilla || 'N/A'})</p>
+                            <p class="card-text mb-1 small">ഡെലിവറി ഏരിയകൾ: <strong>${product.area || 'എല്ലാ ഏരിയകളും'}</strong></p> 
+                            <h5 class="text-danger">₹ ${productPrice.toFixed(2)} 
+                                <span class="badge bg-secondary float-end small">ഡെലിവറി: ₹${deliveryCharge.toFixed(2)}</span>
+                            </h5>
+                            <button class="btn btn-warning w-100" onclick="viewProduct(${product.id})">
+                                <i class="fas fa-eye"></i> കൂടുതൽ വിവരങ്ങൾ
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productListDiv.innerHTML += productHtml;
+            });
+            
+            if (activeProducts.length === 0) {
+                 productListDiv.innerHTML = `<div class="alert alert-info text-center">നിലവിൽ ഉൽപ്പന്നങ്ങൾ ലഭ്യമല്ല.</div>`;
+            }
+        }
+        
+        function filterProductsByJilla(jillaName) {
+            const filteredProducts = localProducts.filter(p => p.jilla === jillaName);
+            document.getElementById('products-header').textContent = `ഉൽപ്പന്നങ്ങൾ (${jillaName})`;
+            loadProducts(filteredProducts); 
+        }
+
+        // MODIFIED: Added Quantity Input to Detail Screen
+        function viewProduct(productId) { 
+            const product = localProducts.find(p => p.id === productId);
+            if (!product) return;
+            currentProduct = product; 
+            
+            const productPrice = parseFloat(product.price) || 0;
+            const deliveryCharge = parseFloat(product.delivery_charge) || 0;
+
+            const detailDiv = document.getElementById('product-detail-content');
+            detailDiv.innerHTML = `
+                <img src="${product.image_url || 'https://via.placeholder.com/500x300?text=Product+Image'}" class="img-fluid rounded mb-3" alt="${product.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/500x300?text=Image+Load+Failed';">
+                <h3 class="text-success">${product.name}</h3>
+                <h4 class="text-danger">വില: ₹ ${productPrice.toFixed(2)}</h4>
+                <p class="card-text">വില്പനക്കാരൻ: <strong>${product.seller || 'അജ്ഞാതം'}</strong></p>
+                <p class="card-text">സ്ഥലം: <strong>${product.jilla || 'N/A'}</strong></p>
+                <p class="card-text">ഡെലിവറി ഏരിയകൾ: <strong>${product.area || 'എല്ലാ ഏരിയകളും'}</strong></p>
+                <p class="card-text">ഡെലിവറി ചാർജ്: <strong>₹ ${deliveryCharge.toFixed(2)}</strong></p>
+                <p class="card-text mt-3 border p-2 bg-light">വിവരണം: <strong>${product.description || 'വിവരണം ലഭ്യമല്ല.'}</strong></p> 
+                
+                <hr>
+                
+                <!-- NEW: Quantity Selector -->
+                <div class="input-group mb-3">
+                    <span class="input-group-text"><i class="fas fa-boxes"></i> എണ്ണം</span>
+                    <input type="number" id="productQuantity" class="form-control text-center" value="1" min="1" max="100" required>
+                    <button class="btn btn-warning" type="button" onclick="document.getElementById('productQuantity').stepUp()">+</button>
+                    <button class="btn btn-warning" type="button" onclick="document.getElementById('productQuantity').stepDown()">-</button>
+                </div>
+                <!-- END NEW: Quantity Selector -->
+
+                <button class="btn btn-warning btn-lg w-100 mb-2" onclick="addToCartFromDetail(${product.id})">
+                    <i class="fas fa-cart-plus"></i> കാർട്ടിൽ ചേർക്കുക
+                </button>
+                <button class="btn btn-success btn-lg w-100" onclick="goToCheckout(false)"> 
+                    <i class="fas fa-money-bill-wave"></i> ഇപ്പോൾ വാങ്ങുക
+                </button>
+            `;
+            
+            switchScreen('product-detail-screen');
+        }
+        
+        // MODIFIED: Now checks the quantity input field
+        function addToCartFromDetail(productId) {
+            const quantityInput = document.getElementById('productQuantity');
+            const quantity = parseInt(quantityInput.value);
+
+            if (isNaN(quantity) || quantity < 1) {
+                alert('ദയവായി സാധുവായ ഒരു എണ്ണം നൽകുക.');
+                return;
+            }
+            
+            const product = localProducts.find(p => p.id === productId);
+            const existingItem = cartItems.find(item => item.id === productId);
+            
+            const productDetails = {
+                id: product.id, 
+                name: product.name, 
+                price: parseFloat(product.price) || 0, 
+                delivery_charge: parseFloat(product.delivery_charge) || 0,
+                seller: product.seller || 'അജ്ഞാതം',
+                image_url: product.image_url,
+                quantity: quantity 
+            };
+            
+            if (existingItem) {
+                existingItem.quantity += quantity;
+                alert(`${product.name} കാർട്ടിൽ ചേർത്തു! (ആകെ എണ്ണം: ${existingItem.quantity})`);
+            } else {
+                cartItems.push(productDetails);
+                alert(`${product.name} കാർട്ടിൽ ചേർത്തു! (എണ്ണം: ${quantity})`);
+            }
+            updateCartBadge();
+        }
+        
+        function goToCheckout(isCart) {
+             if (isCart && cartItems.length === 0) {
+                 alert("കാർട്ട് ശൂന്യമാണ്!");
+                 return;
+             }
+             
+             const checkoutScreenId = isCart ? 'cart-checkout-screen' : 'checkout-form-screen';
+             const container = document.getElementById(isCart ? 'cartCheckoutSummary' : 'singleItemCheckoutSummary');
+             
+             let quantity = isCart ? 0 : parseInt(document.getElementById('productQuantity')?.value) || 1; // Get quantity from detail screen if not cart
+
+             let itemsToOrder = isCart ? cartItems : [{ 
+                 id: currentProduct.id, 
+                 name: currentProduct.name, 
+                 price: parseFloat(currentProduct.price) || 0, 
+                 delivery_charge: parseFloat(currentProduct.delivery_charge) || 0,
+                 quantity: quantity
+             }];
+
+             let totalAmount = 0;
+             let totalDelivery = 0;
+
+             const uniqueItemDeliveryCharges = new Set();
+             itemsToOrder.forEach(item => {
+                const itemTotal = (item.price * item.quantity);
+                totalAmount += itemTotal;
+                if (item.delivery_charge > 0) {
+                    uniqueItemDeliveryCharges.add(item.delivery_charge);
+                }
+             });
+             totalDelivery = Array.from(uniqueItemDeliveryCharges).reduce((sum, charge) => sum + charge, 0);
+
+             let summaryHtml = '';
+             itemsToOrder.forEach(item => {
+                summaryHtml += `
+                    <p class="mb-1 border-bottom small">${item.name} (${item.quantity} x ₹${item.price.toFixed(2)})</p>
+                `;
+             });
+             
+             const grandTotal = totalAmount + totalDelivery;
+
+             container.innerHTML = `
+                <h5 class="text-primary"><i class="fas fa-box"></i> ഓർഡർ ചെയ്യുന്ന ഉൽപ്പന്നങ്ങൾ</h5>
+                ${summaryHtml}
+                <p class="mb-1">ഉൽപ്പന്നങ്ങളുടെ ആകെ വില: ₹ ${totalAmount.toFixed(2)}</p>
+                <p class="mb-1">ആകെ ഡെലിവറി ചാർജ്: ₹ <strong id="${isCart ? 'cartCheckoutDeliveryCharge' : 'checkoutDeliveryCharge'}">${totalDelivery.toFixed(2)}</strong></p>
+                <h5 class="mt-2 text-danger">ആകെ തുക: ₹ <strong id="${isCart ? 'cartCheckoutTotal' : 'checkoutTotal'}">${grandTotal.toFixed(2)}</strong></h5>
+             `;
+
+             let defaultJilla = '';
+             let defaultArea = '';
+             if (!isCart && currentProduct) {
+                 defaultJilla = currentProduct.jilla;
+                 defaultArea = currentProduct.area;
+             }
+             else if (isCart && itemsToOrder.length > 0) {
+                 const firstItem = localProducts.find(p => p.id === itemsToOrder[0].id);
+                 if (firstItem) {
+                     const allSameJilla = itemsToOrder.every(item => {
+                         const product = localProducts.find(p => p.id === item.id);
+                         return product && product.jilla === firstItem.jilla;
+                     });
+                     if (allSameJilla) {
+                         defaultJilla = firstItem.jilla;
+                         defaultArea = firstItem.area;
+                     }
+                 }
+             }
+
+             document.getElementById(isCart ? 'cartCheckoutJilla' : 'checkoutJilla').value = defaultJilla || '';
+             document.getElementById(isCart ? 'cartCheckoutArea' : 'checkoutArea').value = defaultArea || '';
+             
+             renderSelectOptions();
+
+             switchScreen(checkoutScreenId);
+        }
+        
+        async function placeOrder(e, isCart = false) {
+            e.preventDefault();
+            if (!supabase) return alert('Supabase കണക്റ്റ് ചെയ്തിട്ടില്ല. ഓർഡർ നൽകാൻ കഴിയില്ല.');
+            
+            const formId = isCart ? 'cartCheckoutForm' : 'checkoutForm';
+            
+            const nameId = isCart ? 'cartCheckoutName' : 'checkoutName';
+            const addressId = isCart ? 'cartCheckoutAddress' : 'checkoutAddress';
+            const pincodeId = isCart ? 'cartCheckoutPincode' : 'checkoutPincode';
+            const phoneId = isCart ? 'cartCheckoutPhone' : 'checkoutPhone';
+            const jillaId = isCart ? 'cartCheckoutJilla' : 'checkoutJilla';
+            const areaId = isCart ? 'cartCheckoutArea' : 'checkoutArea';
+
+            const form = document.getElementById(formId);
+            
+            let quantity = isCart ? 0 : parseInt(document.getElementById('productQuantity')?.value) || 1;
+
+            const itemsToOrder = isCart ? cartItems.map(item => ({...item})) : [{ 
+                id: currentProduct.id, 
+                name: currentProduct.name, 
+                seller: currentProduct.seller,
+                price: parseFloat(currentProduct.price) || 0,
+                delivery_charge: parseFloat(currentProduct.delivery_charge) || 0, 
+                quantity: quantity, // Use the selected quantity
+                image_url: currentProduct.image_url
+            }];
+
+            let totalAmount = 0;
+            let totalDelivery = 0;
+            const uniqueItemDeliveryCharges = new Set();
+             itemsToOrder.forEach(item => {
+                const itemTotal = (item.price * item.quantity);
+                totalAmount += itemTotal;
+                if (item.delivery_charge > 0) {
+                    uniqueItemDeliveryCharges.add(item.delivery_charge);
+                }
+             });
+             totalDelivery = Array.from(uniqueItemDeliveryCharges).reduce((sum, charge) => sum + charge, 0);
+             const grandTotal = totalAmount + totalDelivery;
+
+            const phoneValue = document.getElementById(phoneId).value; 
+            
+            const orderData = {
+                orderId: Date.now(), 
+                total: grandTotal, 
+                subtotal: totalAmount, 
+                delivery_charge: totalDelivery, 
+                status: 'NEW ORDER',
+                created_at: new Date().toISOString(), 
+                
+                // --- Safe Columns for Supabase ---
+                items: itemsToOrder, 
+                
+                // Customer details mapped to individual columns 
+                customer_name: document.getElementById(nameId).value,
+                customer_phone: phoneValue, 
+                customer_address: document.getElementById(addressId).value, 
+                customer_pincode: document.getElementById(pincodeId).value,
+                customer_jilla: document.getElementById(jillaId).value,
+                customer_area: document.getElementById(areaId).value,
+            };
+            
+            try {
+                const { error } = await supabase.from('orders').insert([orderData]);
+
+                if (error) throw new Error(error.message); 
+
+                if (isCart) cartItems = []; 
+                currentProduct = null;
+                
+                alert(`ഓർഡർ #${orderData.orderId} വിജയകരമായി നൽകിയിരിക്കുന്നു!\nആകെ തുക: ₹${orderData.total.toFixed(2)}`);
+                form.reset();
+                updateCartBadge(); 
+                switchScreen('orders-screen');
+            } catch(e) {
+                 alert(`ഓർഡർ നൽകുന്നതിൽ പരാജയപ്പെട്ടു: ${e.message}`);
+            }
+        }
+
+        // --- CART LOAD/ADD/REMOVE FUNCTIONS (Unchanged) ---
+        function loadCart() {
+            const cartDiv = document.getElementById('cart-list-container');
+            const totalDiv = document.getElementById('cart-total');
+            let total = 0;
+            
+            if (cartItems.length === 0) {
+                cartDiv.innerHTML = `<div class="alert alert-secondary text-center">കാർട്ടിൽ ഉൽപ്പന്നങ്ങൾ ചേർത്തിട്ടില്ല.</div>`;
+            } else {
+                cartDiv.innerHTML = '';
+                cartItems.forEach(item => {
+                    const itemPrice = parseFloat(item.price) || 0;
+                    const itemTotal = itemPrice * item.quantity;
+                    total += itemTotal;
+                    
+                    const itemImage = item.image_url || 'https://via.placeholder.com/70x70?text=No+Img';
+
+                    const cartHtml = `
+                        <div class="card mb-2">
+                            <div class="card-body p-3">
+                                <div class="cart-item-row">
+                                    <img src="${itemImage}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/70x70?text=Error';" />
+                                    <div>
+                                        <h6 class="card-title">${item.name}</h6>
+                                        <p class="mb-1 small">വില: ₹${itemPrice.toFixed(2)} x ${item.quantity}</p>
+                                        <p class="mb-1 small text-danger">ആകെ: ₹${itemTotal.toFixed(2)}</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-danger ms-auto" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    cartDiv.innerHTML += cartHtml;
+                });
+            }
+            
+            totalDiv.textContent = `ആകെ തുക: ₹ ${total.toFixed(2)}`;
+        }
+        
+        function checkout() { 
+            goToCheckout(true);
+        }
+        
+        function removeFromCart(productId) {
+            cartItems = cartItems.filter(item => item.id !== productId);
+            loadCart();
+            updateCartBadge(); 
+        }
+
+        // --- Pay Listing Fee Functions (Unchanged) ---
+        function simulatePaymentSuccess() {
+             isFeePaidForCurrentListing = true;
+             document.getElementById('listProductButton').disabled = false;
+             document.getElementById('payFeeButton').disabled = true;
+             document.getElementById('feeStatusMessage').innerHTML = '<span class="text-success"><i class="fas fa-check"></i> പേയ്മെന്റ് സ്ഥിരീകരിച്ചു. ഇപ്പോൾ ലിസ്റ്റ് ചെയ്യാം.</span>';
+        }
+        
+        function payListingFee() {
+             if (!currentSeller) { alert('വിൽപനക്കാരൻ ലോഗിൻ ചെയ്യുക!'); return; } 
+             
+             const productName = document.getElementById('sellerProductName').value;
+             const productPrice = document.getElementById('sellerProductPrice').value;
+             const productImageFile = document.getElementById('sellerProductImage').files[0];
+             
+             if (!productName || !productPrice || !productImageFile) {
+                 alert('പേയ്മെൻ്റ് തുടരുന്നതിന് മുമ്പ് ഉൽപ്പന്നത്തിൻ്റെ പേര്, വില, ഫോട്ടോ എന്നിവ നൽകുക.');
+                 return;
+             }
+             
+             document.getElementById('upiQrCode').src = UPI_QR_CODE_IMAGE_URL; 
+             document.getElementById('openUpiAppButton').href = ADMIN_UPI_PAYMENT_LINK; 
+
+             const upiModal = new bootstrap.Modal(document.getElementById('upiModal'));
+             upiModal.show();
+        }
+        
+        // --- Seller Product Submission Function (File Path Fix Applied) ---
+        async function handleProductSubmit(e) {
+            e.preventDefault();
+            const submitButton = document.getElementById('listProductButton');
+            
+            if (!supabase) return alert('Supabase കണക്റ്റ് ചെയ്യുക!');
+            if (!currentSeller) return alert('വിൽപനക്കാരൻ ലോഗിൻ ചെയ്യുക!'); 
+            if (!isFeePaidForCurrentListing) {
+                alert('തുടരുന്നതിന് മുമ്പ് നിങ്ങൾ ₹25/- ലിസ്റ്റിംഗ് ഫീസ് അടയ്ക്കണം.');
+                return;
+            }
+            
+            submitButton.disabled = true; 
+
+            
+            const productName = document.getElementById('sellerProductName').value;
+            const productPrice = parseFloat(document.getElementById('sellerProductPrice').value);
+            const productJilla = document.getElementById('sellerProductJilla').value; 
+            const productArea = document.getElementById('sellerProductArea').value;   
+            const deliveryCharge = parseFloat(document.getElementById('sellerDeliveryCharge').value); 
+            const productDescription = document.getElementById('sellerProductDescription').value;
+            const productImageFile = document.getElementById('sellerProductImage').files[0];
+            
+            if (!productName || isNaN(productPrice) || !productJilla || !productArea || isNaN(deliveryCharge) || !productImageFile) {
+                alert('എല്ലാ വിവരങ്ങളും ശരിയായി പൂരിപ്പിക്കുക.');
+                submitButton.disabled = false; 
+                return;
+            }
+
+            try {
+                const bucketName = 'products_images'; 
+                
+                const safeFileName = encodeURIComponent(productImageFile.name.replace(/\s/g, '_'));
+                // *** ശ്രദ്ധിക്കുക: ഉൽപ്പന്ന ചിത്രങ്ങൾക്ക് ബാനർ ഫോൾഡർ ഒഴിവാക്കിയിരിക്കുന്നു ***
+                const filePath = `public/seller_${currentSeller.id}/${Date.now()}_${safeFileName}`; 
+
+                const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, productImageFile);
+                if (uploadError) throw new Error('ഫോട്ടോ അപ്‌ലോഡ് പിശക്: ' + uploadError.message);
+                const { data: publicURLData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+                const publicURL = publicURLData.publicUrl;
+                
+                const newProductData = {
+                    name: productName,
+                    price: productPrice,
+                    image_url: publicURL, 
+                    seller_name: currentSeller.name,
+                    jilla: productJilla,          
+                    area: productArea,            
+                    delivery_charge: deliveryCharge, 
+                    description: productDescription,
+                    status: 'Pending Approval', 
+                };
+
+                const { error: insertError } = await supabase.from('products').insert([newProductData]);
+
+                if (insertError) {
+                    await supabase.storage.from(bucketName).remove([filePath]);
+                    throw new Error('ഡാറ്റാബേസ് ഇൻസേർട്ട് പിശക്: ' + insertError.message);
+                }
+
+                alert(`ഉൽപ്പന്നം "${productName}" വിജയകരമായി ലിസ്റ്റ് ചെയ്തു! \nനില: അംഗീകാരം കാത്തിരിക്കുന്നു.`);
+                e.target.reset();
+                document.getElementById('sellerProductImage').value = '';
+                
+                isFeePaidForCurrentListing = false; 
+                document.getElementById('listProductButton').disabled = true;
+                document.getElementById('payFeeButton').disabled = false;
+                document.getElementById('feeStatusMessage').innerHTML = '';
+
+                await testSupabaseConnection(); 
+                loadSellerProducts(); 
+
+            } catch (error) {
+                alert(`ഓപ്പറേഷൻ പരാജയപ്പെട്ടു: ${error.message}`);
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+        
+        async function loadSellerProducts() {
+            if (!supabase || !currentSeller) return; 
+            const sellerProductListDiv = document.getElementById('seller-product-list');
+            sellerProductListDiv.innerHTML = `<h5>${currentSeller.name}-ൻ്റെ ഉൽപ്പന്നങ്ങൾ</h5><div id="seller-list"><i class="fas fa-spinner fa-spin"></i> Loading...</div>`;
+            const listDiv = document.getElementById('seller-list');
+            
+            const { data: myProducts, error } = await supabase
+                 .from('products')
+                 .select('*')
+                 .eq('seller_name', currentSeller.name); 
+
+            if (error) {
+                listDiv.innerHTML = `<div class="alert alert-danger small">ഉൽപ്പന്നങ്ങൾ ലോഡ് ചെയ്യുന്നതിൽ പിശക്: ${error.message}</div>`;
+                return;
+            }
+            
+            localProducts = [...localProducts.filter(p => p.seller !== currentSeller.name), ...myProducts.map(p => ({
+                id: p.id, name: p.name, price: parseFloat(p.price) || 0, seller: p.seller_name, image_url: p.image_url, 
+                jilla: p.jilla, area: p.area, delivery_charge: parseFloat(p.delivery_charge) || 0, description: p.description, status: p.status || 'Active'
+            }))];
+
+            if (myProducts.length === 0) {
+                listDiv.innerHTML = '<div class="alert alert-info small">നിങ്ങൾ ഉൽപ്പന്നങ്ങളൊന്നും ലിസ്റ്റ് ചെയ്തിട്ടില്ല.</div>';
+                return;
+            }
+
+            listDiv.innerHTML = '';
+            myProducts.forEach(product => {
+                 const statusColor = product.status === 'Pending Approval' ? 'bg-warning' : (product.status === 'Active' ? 'bg-success' : 'bg-danger');
+                 const statusText = product.status === 'Pending Approval' ? 'അംഗീകാരം കാത്തിരിക്കുന്നു' : (product.status === 'Active' ? 'ലൈവ്' : 'നിരസിച്ചു');
+
+                const productHtml = `
+                    <div class="card mb-2 border-left border-primary" id="my-product-${product.id}">
+                        <div class="row g-0">
+                            <div class="col-4">
+                                <img src="${product.image_url || 'https://via.placeholder.com/150x150?text=No+Image'}" class="img-fluid rounded-start" style="height: 100%; object-fit: cover;" alt="${product.name}" onerror="this.onerror=null; this.src='https://via.placeholder.com/150x150?text=Error';">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-2">
+                                    <h6 class="card-title text-primary mb-1">${product.name} <span class="badge ${statusColor} float-end small">${statusText}</span></h6>
+                                    <p class="mb-1 small">വില: ₹${(parseFloat(product.price) || 0).toFixed(2)} | ജില്ല: ${product.jilla}</p>
+                                    <p class="mb-1 small">ഏരിയകൾ: ${product.area || 'N/A'}</p>
+                                    <div class="mt-2">
+                                        <button class="btn btn-sm btn-outline-warning me-2" onclick="editProduct(${product.id})">
+                                            <i class="fas fa-edit"></i> എഡിറ്റ്
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct(${product.id})">
+                                            <i class="fas fa-trash"></i> ഡിലീറ്റ്
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                listDiv.innerHTML += productHtml;
+            });
+        }
+
+        function editProduct(productId) {
+            if (!currentSeller) return; 
+            const product = localProducts.find(p => p.id === productId);
+            if (!product || product.seller !== currentSeller.name) { alert('അനുമതിയില്ല.'); return; } 
+            
+            document.getElementById('editProductId').value = product.id;
+            document.getElementById('editProductName').value = product.name;
+            document.getElementById('editProductPrice').value = (parseFloat(product.price) || 0).toFixed(2);
+            document.getElementById('editProductArea').value = product.area;
+            document.getElementById('editDeliveryCharge').value = (parseFloat(product.delivery_charge) || 0).toFixed(2);
+            document.getElementById('editProductDescription').value = product.description || '';
+            document.getElementById('currentProductImage').src = product.image_url || 'https://via.placeholder.com/100x100?text=No+Image';
+
+            renderSelectOptions();
+            document.getElementById('editProductJilla').value = product.jilla;
+            
+            switchScreen('edit-product-screen');
+        }
+        
+        async function updateProduct(e) {
+            e.preventDefault();
+            const submitButton = e.submitter;
+            submitButton.disabled = true;
+            
+            if (!supabase) { alert('Supabase കണക്റ്റ് ചെയ്യുക!'); submitButton.disabled = false; return; }
+            if (!currentSeller) { alert('വിൽപനക്കാരൻ ലോഗിൻ ചെയ്യുക!'); submitButton.disabled = false; return; } 
+            
+            const productId = parseInt(document.getElementById('editProductId').value);
+            const product = localProducts.find(p => p.id === productId);
+            if (!product || product.seller !== currentSeller.name) { alert('അനുമതിയില്ല.'); submitButton.disabled = false; return; } 
+            
+            const productName = document.getElementById('editProductName').value;
+            const productPrice = parseFloat(document.getElementById('editProductPrice').value);
+            const productJilla = document.getElementById('editProductJilla').value; 
+            const productArea = document.getElementById('editProductArea').value;   
+            const deliveryCharge = parseFloat(document.getElementById('editDeliveryCharge').value); 
+            const productDescription = document.getElementById('editProductDescription').value;
+            const productImageFile = document.getElementById('editProductImage').files[0];
+            const currentImageUrl = document.getElementById('currentProductImage').src;
+            
+            let publicURL = currentImageUrl.includes('placeholder.com') ? null : currentImageUrl;
+
+            try {
+                if (productImageFile) {
+                    const bucketName = 'products_images';
+                    
+                    const safeFileName = encodeURIComponent(productImageFile.name.replace(/\s/g, '_'));
+                    // *** ശ്രദ്ധിക്കുക: ഉൽപ്പന്ന ചിത്രങ്ങൾക്ക് ബാനർ ഫോൾഡർ ഒഴിവാക്കിയിരിക്കുന്നു ***
+                    const filePath = `public/seller_${currentSeller.id}/${Date.now()}_${safeFileName}`; 
+                    
+                    const { error: uploadError } = await supabase.storage.from(bucketName).upload(filePath, productImageFile);
+                    if (uploadError) throw new Error('പുതിയ ഫോട്ടോ അപ്‌ലോഡ് പിശക്: ' + uploadError.message);
+                    
+                    const { data: publicURLData } = supabase.storage.from(bucketName).getPublicUrl(filePath);
+                    publicURL = publicURLData.publicUrl;
+                }
+                
+                const updatedProductData = {
+                    name: productName,
+                    price: productPrice,
+                    image_url: publicURL, 
+                    jilla: productJilla,          
+                    area: productArea,            
+                    delivery_charge: deliveryCharge, 
+                    description: productDescription, 
+                    status: 'Pending Approval' 
+                };
+
+                const { error: updateError } = await supabase.from('products')
+                    .update(updatedProductData)
+                    .eq('id', productId);
+
+                if (updateError) {
+                    throw new Error('ഡാറ്റാബേസ് അപ്ഡേറ്റ് പിശക്: ' + updateError.message);
+                }
+
+                alert(`ഉൽപ്പന്നം "${productName}" വിജയകരമായി അപ്ഡേറ്റ് ചെയ്തു! (അംഗീകാരത്തിനായി കാത്തിരിക്കുന്നു)`);
+                e.target.reset();
+                document.getElementById('editProductImage').value = '';
+                
+                await testSupabaseConnection(); 
+                switchScreen('seller-screen'); 
+
+            } catch (error) {
+                alert(`ഓപ്പറേഷൻ പരാജയപ്പെട്ടു: ${error.message}`);
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+        
+        async function deleteProduct(productId) {
+            if (!supabase) { alert('Supabase കണക്റ്റ് ചെയ്യുക!'); return; }
+            if (!currentSeller) { alert('വിൽപനക്കാരൻ ലോഗിൻ ചെയ്യുക!'); return; } 
+            
+            const product = localProducts.find(p => p.id === productId);
+            if (!product || product.seller !== currentSeller.name) { alert('അനുമതിയില്ല.'); return; } 
+            
+            if (!confirm('ഈ ഉൽപ്പന്നം ഡിലീറ്റ് ചെയ്യാൻ നിങ്ങൾ ഉറപ്പാണോ?')) return;
+            
+            try {
+                 const { error } = await supabase.from('products')
+                    .delete()
+                    .eq('id', productId);
+
+                 if (error) throw new Error('ഡിലീറ്റ് പിശക്: ' + error.message);
+                 
+                 alert('ഉൽപ്പന്നം വിജയകരമായി ഡിലീറ്റ് ചെയ്തു.');
+                 
+                 await testSupabaseConnection(); 
+                 loadSellerProducts(); 
+                 
+            } catch (error) {
+                alert(`ഓപ്പറേഷൻ പരാജയപ്പെട്ടു: ${error.message}`);
+            }
+        }
+
+        // MODIFIED: Added total quantity count for seller
+        async function loadSellerOrderList() {
+             if (!supabase || !currentSeller) return; 
+             const orderManagementDiv = document.getElementById('orderManagement');
+             orderManagementDiv.innerHTML = `<h5>പുതിയ ഓർഡറുകൾ (${currentSeller.name}-നുള്ളവ)</h5><div id="seller-order-list"><i class="fas fa-spinner fa-spin"></i> Loading...</div>`;
+             const listDiv = document.getElementById('seller-order-list');
+             
+             const { data: allOrders, error } = await supabase.from('orders').select('*').order('orderId', { ascending: false });
+
+             if (error) {
+                 listDiv.innerHTML = `<div class="alert alert-danger small">ഓർഡറുകൾ ലോഡ് ചെയ്യുന്നതിൽ പിശക്: ${error.message}</div>`;
+                 return;
+             }
+
+             const sellerOrders = allOrders.filter(order => {
+                if (!order.items || !Array.isArray(order.items)) return false; 
+                return order.items.some(item => item.seller === currentSeller.name);
+             });
+
+             if (sellerOrders.length === 0) {
+                 listDiv.innerHTML = '<div class="alert alert-info small">പുതിയ ഓർഡറുകളൊന്നും ലഭ്യമല്ല.</div>';
+                 return;
+             }
+             
+             listDiv.innerHTML = '';
+             sellerOrders.forEach(order => {
+                 const sellerItems = order.items.filter(item => item.seller === currentSeller.name);
+                 const firstItem = sellerItems[0]; 
+                 
+                 let sellerSubtotal = 0;
+                 let sellerDeliveryCharge = 0;
+                 let totalQuantity = 0; // NEW: Total quantity for this seller in this order
+                 
+                 const uniqueSellerDeliveryCharges = new Set();
+                 sellerItems.forEach(item => {
+                     sellerSubtotal += item.price * item.quantity;
+                     totalQuantity += item.quantity; // Accumulate quantity
+                     if (item.delivery_charge > 0) {
+                         uniqueSellerDeliveryCharges.add(item.delivery_charge);
+                     }
+                 });
+                 sellerDeliveryCharge = Array.from(uniqueSellerDeliveryCharges).reduce((sum, charge) => sum + charge, 0);
+                 const sellerOrderTotal = sellerSubtotal + sellerDeliveryCharge;
+                 
+                 let itemDetails = sellerItems.map(item => `${item.name} x ${item.quantity}`).join(', ');
+                 if (itemDetails.length > 50) itemDetails = itemDetails.substring(0, 47) + '...';
+
+                 const customerName = order.customer_name || 'N/A';
+                 const customerPhone = order.customer_phone || 'N/A';
+                 const customerJilla = order.customer_jilla || 'N/A';
+
+                 const orderHtml = `
+                     <div class="card mb-3 border-left border-danger" id="seller-order-${order.orderId}">
+                         <div class="card-body p-2">
+                             <div class="seller-order-item mb-2">
+                                 <img src="${firstItem.image_url || 'https://via.placeholder.com/60x60?text=No+Img'}" alt="Item Image" onerror="this.src='https://via.placeholder.com/60x60?text=Error';">
+                                 <div>
+                                     <h6 class="card-title mb-0">ഓർഡർ #${order.orderId} <span class="badge bg-danger float-end status-badge">${order.status}</span></h6>
+                                     <p class="mb-1 small text-success">നിങ്ങൾക്കുള്ള തുക: ₹${sellerOrderTotal.toFixed(2)} | **എണ്ണം: ${totalQuantity}**</p> <!-- Quantity Display -->
+                                     <p class="mb-1 small">${itemDetails}</p>
+                                     <p class="mb-1 small">ഉപഭോക്താവ്: ${customerName} | ഫോൺ: ${customerPhone} | ഡെലിവറി: ${customerJilla}</p>
+                                 </div>
+                             </div>
+                             <div class="action-btns">
+                                 <button class="btn btn-sm btn-primary me-2" onclick="updateOrderStatus(${order.orderId}, 'Processing')">Accept</button>
+                                 <button class="btn btn-sm btn-danger" onclick="updateOrderStatus(${order.orderId}, 'Rejected')">Reject</button>
+                             </div>
+                         </div>
+                     </div>
+                 `;
+                 listDiv.innerHTML += orderHtml;
+             });
+        }
+        
+        // --- Customer Order Functions (Unchanged) ---
+        async function viewMyOrders() {
+            if (!supabase) return alert('Supabase കണക്റ്റ് ചെയ്തിട്ടില്ല. ഓർഡറുകൾ കാണാൻ കഴിയില്ല.');
+            
+            const phoneInput = document.getElementById('orderLookupPhone');
+            const phone = phoneInput.value.trim();
+            const msgDiv = document.getElementById('orderLookupMessage');
+            
+            if (phone.length < 10) {
+                 msgDiv.innerHTML = '<span class="text-danger">ശരിയായ ഫോൺ നമ്പർ നൽകുക.</span>';
+                 return;
+            }
+            
+            msgDiv.innerHTML = `<span class="text-success"><i class="fas fa-spinner fa-spin"></i> ഓർഡറുകൾ ലോഡ് ചെയ്യുന്നു...</span>`;
+            
+            try {
+                // Fetch orders for the specific phone number
+                const { data: myOrders, error } = await supabase
+                    .from('orders')
+                    .select('*')
+                    .eq('customer_phone', phone) 
+                    .order('orderId', { ascending: false });
+
+                if (error) throw new Error(error.message);
+
+                renderFilteredOrders(myOrders, phone);
+
+            } catch(e) {
+                 msgDiv.innerHTML = `<span class="text-danger">ഓർഡറുകൾ ലോഡ് ചെയ്യുന്നതിൽ പിശക്: ${e.message}</span>`;
+            }
+        }
+        
+        function renderFilteredOrders(myOrders, phone) {
+            const listDiv = document.getElementById('actual-order-list-content');
+            listDiv.innerHTML = '';
+            
+            if (myOrders.length === 0) {
+                listDiv.innerHTML = `<div class="alert alert-secondary text-center mt-3">ഈ ഫോൺ നമ്പർ (${phone}) ഉപയോഗിച്ച് ഓർഡറുകളൊന്നും നൽകിയിട്ടില്ല.</div>`;
+                document.getElementById('orderLookupMessage').innerHTML = '';
+                return;
+            }
+            
+            document.getElementById('orderLookupMessage').innerHTML = `<span class="text-success">${myOrders.length} ഓർഡറുകൾ കണ്ടെത്തി.</span>`;
+            
+            myOrders.forEach(order => { 
+                const firstItem = order.items && order.items[0] ? order.items[0] : {};
+                const isCancellable = order.status === 'NEW ORDER' || order.status === 'Processing'; 
+                const totalAmount = order.total || 0;
+                const customerJilla = order.customer_jilla || 'N/A';
+
+                const orderHtml = `
+                    <div class="card mb-3 border-left ${isCancellable ? 'border-warning' : 'border-success'}">
+                        <div class="card-body">
+                            <h6 class="card-title">ഓർഡർ #${order.orderId} <span class="badge ${isCancellable ? 'bg-warning' : 'bg-success'} float-end">${order.status}</span></h6>
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="${firstItem.image_url || 'https://via.placeholder.com/40x40?text=Img'}" alt="Item Image" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;" onerror="this.src='https://via.placeholder.com/40x40?text=Error';">
+                                <p class="mb-0 small">${firstItem.name} ${order.items && order.items.length > 1 ? ` (+ ${order.items.length - 1} കൂടുതൽ)` : ''}</p>
+                            </div>
+                            <p class="mb-1 small">ആകെ തുക: ₹${totalAmount.toFixed(2)} | ഡെലിവറി: ${customerJilla}</p>
+                            ${isCancellable ? 
+                                `<button class="btn btn-sm btn-outline-danger mt-2" onclick="cancelOrder(${order.orderId}, '${phone}')"><i class="fas fa-times"></i> ഓർഡർ കാൻസൽ ചെയ്യുക</button>` 
+                                : ''}
+                        </div>
+                    </div>
+                `;
+                listDiv.innerHTML += orderHtml;
+            });
+        }
+
+        function loadUserOrders() {
+            const ordersDiv = document.getElementById('user-orders-list');
+            ordersDiv.innerHTML = `
+                <div id="order-auth-container" class="card p-3 mb-3 border-left border-primary">
+                    <h5 class="text-primary mb-3"><i class="fas fa-mobile-alt"></i> ഓർഡറുകൾ കാണുക</h5>
+                    <p class="small text-muted mb-3">നിങ്ങളുടെ ഫോൺ നമ്പർ നൽകി ഓർഡർ വിവരങ്ങൾ കാണുക.</p>
+                    <input type="tel" id="orderLookupPhone" class="form-control mb-2" 
+                           placeholder="നിങ്ങൾ ഓർഡർ നൽകിയ ഫോൺ നമ്പർ" 
+                           required>
+                    <button class="btn btn-primary w-100" onclick="viewMyOrders()">വിവരങ്ങൾ കാണുക</button>
+                    <div id="orderLookupMessage" class="mt-2 small"></div>
+                </div>
+                <div id="actual-order-list-content"></div>
+            `;
+        }
+        
+        async function cancelOrder(orderId, phone) {
+            if (!supabase) return alert('Supabase കണക്റ്റ് ചെയ്തിട്ടില്ല. കാൻസൽ ചെയ്യാൻ കഴിയില്ല.');
+            if (!confirm(`ഓർഡർ #${orderId} കാൻസൽ ചെയ്യാൻ നിങ്ങൾ ആഗ്രഹിക്കുന്നുണ്ടോ?`)) return;
+            
+            try {
+                const { error } = await supabase.from('orders')
+                    .update({ status: 'Cancelled' })
+                    .eq('orderId', orderId)
+                    .eq('customer_phone', phone); 
+
+                if (error) throw new Error(error.message);
+                
+                alert(`ഓർഡർ #${orderId} കാൻസൽ ചെയ്തിരിക്കുന്നു.`);
+                viewMyOrders(); 
+            } catch(e) {
+                 alert(`ഓർഡർ കാൻസൽ ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു: ${e.message}`);
+            }
+        }
+        
+        async function updateOrderStatus(orderId, status) {
+            if (!supabase || !currentSeller) return; 
+            
+            try {
+                const { error } = await supabase.from('orders')
+                    .update({ status: status })
+                    .eq('orderId', orderId)
+                    .maybeSingle(); 
+
+                if (error) throw new Error(error.message);
+                
+                alert(`ഓർഡർ #${orderId} സ്റ്റാറ്റസ് "${status}" ആയി അപ്ഡേറ്റ് ചെയ്തു.`);
+                loadSellerOrderList(); 
+            } catch(e) {
+                 alert(`സ്റ്റാറ്റസ് അപ്ഡേറ്റ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു: ${e.message}`);
+            }
+        }
+
+        // --- App Download Function (Unchanged) ---
+        function handleAppDownload() {
+            if (APP_APK_DOWNLOAD_LINK.includes('YOUR_APK_DOWNLOAD_LINK_HERE') || !APP_APK_DOWNLOAD_LINK) {
+                alert('ദയവായി കോഡിൽ ആപ്പ് ഡൗൺലോഡ് ലിങ്ക് നൽകുക. ഇപ്പോൾ ഡെമോ മെസ്സേജ് മാത്രം കാണിക്കുന്നു.');
+                return;
+            }
+            alert('APP ഡൗൺലോഡ് ആകുന്നു. ഫയൽ സേവ് ചെയ്യാൻ അനുമതി നൽകുക.');
+            window.location.href = APP_APK_DOWNLOAD_LINK; 
+        }
+        
+        // --- Initializers (Unchanged) ---
+        function searchProducts() { alert('തിരയൽ പ്രവർത്തനം ഉടൻ വരും!'); }
+        
+        function renderJillaCategories() {
+            const container = document.getElementById('jilla-categories');
+            container.innerHTML = '';
+            KERALA_JILLAS.forEach(jilla => {
+                container.innerHTML += `<button class="btn btn-outline-secondary category-btn" onclick="filterProductsByJilla('${jilla}')">${jilla}</button>`;
+            });
+            container.innerHTML += `<button class="btn btn-primary category-btn" onclick="loadProducts()">എല്ലാം</button>`;
+        }
+        
+        function renderSelectOptions() {
+            const jillaSelects = document.querySelectorAll('select[id*="Jilla"]');
+            jillaSelects.forEach(select => {
+                const currentValue = select.value; 
+                select.innerHTML = '<option value="" disabled selected>ജില്ല തിരഞ്ഞെടുക്കുക</option>';
+                KERALA_JILLAS.forEach(jilla => {
+                    select.innerHTML += `<option value="${jilla}" ${jilla === currentValue ? 'selected' : ''}>${jilla}</option>`;
+                });
+                if (currentValue) {
+                    select.value = currentValue;
+                }
+            });
+        }
+        
+        window.onload = function() {
+            document.querySelectorAll('.nav-item-bottom').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    const screenId = e.currentTarget.getAttribute('data-screen');
+                    
+                    document.querySelectorAll('.nav-item-bottom').forEach(l => l.classList.remove('active'));
+                    e.currentTarget.classList.add('active');
+                    
+                    if (screenId === 'seller-screen') {
+                        if (currentSeller) {
+                            switchScreen('seller-screen');
+                        } else {
+                            showAuthScreen();
+                        }
+                    } else {
+                        switchScreen(screenId);
+                    }
+                });
+            });
+
+            document.getElementById('productForm').addEventListener('submit', handleProductSubmit);
+            document.getElementById('checkoutForm').addEventListener('submit', (e) => placeOrder(e, false)); 
+            document.getElementById('cartCheckoutForm').addEventListener('submit', (e) => placeOrder(e, true)); 
+            document.getElementById('editProductForm').addEventListener('submit', updateProduct);
+            
+            // Auth form listeners
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            document.getElementById('registerForm').addEventListener('submit', handleRegister);
+
+            renderJillaCategories();
+            renderSelectOptions();
+            updateCartBadge(); 
+            
+            // Start the initialization flow
+            initializeSupabase(); 
+        }
+
+    </script>
+</head>
+<body>
+
+    <div class="app-container">
+        <header id="appHeader" class="text-center">കൈത്തൊഴിൽ മാർക്കറ്റ് പ്ലേസ്</header>
+        
+        <div class="content">
+            
+            <!-- വിൽപനക്കാരൻ ലോഗിൻ/രജിസ്റ്റർ സ്ക്രീൻ (Auth Screen) -->
+            <div id="auth-screen" class="screen p-3">
+                <div id="auth-message" class="mb-3 text-center"></div>
+                
+                <!-- Login Form -->
+                <div id="login-form-container" class="card p-3 mb-3 border-left border-primary">
+                    <h5 class="text-primary mb-3"><i class="fas fa-sign-in-alt"></i> വിൽപനക്കാരൻ ലോഗിൻ</h5>
+                    <form id="loginForm">
+                        <input type="tel" id="loginPhone" class="form-control mb-2" placeholder="ഫോൺ നമ്പർ" required>
+                        <input type="password" id="loginPassword" class="form-control mb-3" placeholder="പാസ്‌വേർഡ്" required>
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-lock"></i> ലോഗിൻ ചെയ്യുക</button>
+                    </form>
+                    <button class="btn btn-link mt-2" onclick="toggleAuthForm(true)">രജിസ്റ്റർ ചെയ്തിട്ടില്ലേ? ഇവിടെ രജിസ്റ്റർ ചെയ്യുക</button>
+                </div>
+                
+                <!-- Register Form -->
+                <div id="register-form-container" class="card p-3 border-left border-success" style="display:none;">
+                    <h5 class="text-success mb-3"><i class="fas fa-user-plus"></i> വിൽപനക്കാരൻ രജിസ്റ്റർ</h5>
+                    <form id="registerForm">
+                        <input type="text" id="registerContactName" class="form-control mb-2" placeholder="നിങ്ങളുടെ പേര് (ഉത്തരവാദി)" required>
+                        <input type="text" id="registerShopName" class="form-control mb-2" placeholder="കടയുടെ പേര് / സ്ഥാപനത്തിൻ്റെ പേര്" required>
+                        
+                        <select id="registerJilla" class="form-select mb-2" required>
+                            <!-- Jilla Options populated by JS (renderSelectOptions) -->
+                        </select>
+
+                        <input type="tel" id="registerPhone" class="form-control mb-2" placeholder="ഫോൺ നമ്പർ (ലോഗിൻ ID)" required>
+                        
+                        <input type="tel" id="registerWhatsApp" class="form-control mb-2" placeholder="WhatsApp നമ്പർ (ഉദാ: 919876543210)" required>
+
+                        <input type="password" id="registerPassword" class="form-control mb-3" placeholder="പാസ്‌വേർഡ്" required>
+                        
+                        <button type="submit" class="btn btn-success w-100"><i class="fas fa-user-plus"></i> രജിസ്റ്റർ ചെയ്യുക</button>
+                    </form>
+                    <button class="btn btn-link mt-2" onclick="toggleAuthForm(false)">ഒരു അക്കൗണ്ട് ഉണ്ടോ? ഇവിടെ ലോഗിൻ ചെയ്യുക</button>
+                </div>
+            </div>
+
+
+            <!-- ഹോം സ്ക്രീൻ (Customer Home) -->
+            <div id="home-screen" class="screen">
+                <!-- Image Banner Carousel (Now Dynamic & Auto-Scroll) -->
+                <div id="imageBannerCarousel" class="carousel slide image-banner-carousel" data-bs-ride="carousel" data-bs-interval="4000">
+                    <div class="carousel-inner">
+                        <!-- Dynamic content will be loaded here by renderBannerCarousel() -->
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#imageBannerCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#imageBannerCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+
+                <!-- Text Banner Carousel -->
+                <div id="textBannerCarousel" class="carousel slide text-banner-carousel" data-bs-ride="carousel" data-bs-interval="3000">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active text-carousel-item">
+                            <i class="fas fa-gift"></i> പ്രാദേശിക ഉൽപ്പന്നങ്ങൾ, പുതിയ രുചികൾ!
+                        </div>
+                        <div class="carousel-item text-carousel-item">
+                            <i class="fas fa-truck"></i> ഇന്ന് ഓർഡർ ചെയ്യൂ, വേഗത്തിൽ നേടൂ!
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="input-group mb-3 p-3 pt-0">
+                    <input type="text" id="location-input" class="form-control" placeholder="പിൻകോഡ് നൽകുക (682001)">
+                    <button class="btn btn-primary" type="button" onclick="searchProducts()">
+                        <i class="fas fa-search"></i> തിരയുക
+                    </button>
+                </div>
+
+                <!-- App Download Button (Professional Look & Updated Text) -->
+                <div class="px-3 mb-3">
+                    <a href="#" id="appDownloadButton" class="btn w-100" onclick="handleAppDownload()">
+                        <i class="fas fa-mobile-alt"></i> ആപ്പ് ഡൗൺലോഡ് ചെയ്യുക
+                    </a>
+                </div>
+                
+                <!-- District Categories -->
+                <h5 class="text-primary mb-2 px-3"><i class="fas fa-map-marker-alt"></i> Districts</h5>
+                <div id="jilla-categories" class="category-grid">
+                    <!-- Categories will be rendered here by JS -->
+                </div>
+
+                <h5 id="products-header" class="text-primary mb-3 p-3 pt-0"><i class="fas fa-list"></i> ഉൽപ്പന്നങ്ങൾ</h5>
+                
+                <!-- Product List (Dynamically updated by loadProducts()) -->
+                <div id="product-list" class="px-3">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+
+            <!-- കാർട്ട് സ്ക്രീൻ (Cart) -->
+            <div id="cart-screen" class="screen p-3">
+                <h3 class="text-primary mb-4"><i class="fas fa-shopping-cart"></i> എൻ്റെ കാർട്ട്</h3>
+                <div id="cart-list-container">
+                    <!-- Cart items will be loaded here -->
+                </div>
+                <h4 id="cart-total" class="mt-5">ആകെ തുക: ₹ 0.00</h4>
+                <button class="btn btn-success btn-lg w-100 mt-3" onclick="checkout()"><i class="fas fa-credit-card"></i> ഓർഡർ ചെയ്യുക & പേയ്‌മെന്റ്</button>
+            </div>
+            
+            <!-- ഓർഡർ സ്ക്രീൻ (Orders - User) -->
+            <div id="orders-screen" class="screen p-3">
+                <h3 class="text-primary mb-4"><i class="fas fa-receipt"></i> എൻ്റെ ഓർഡറുകൾ</h3>
+                <div id="user-orders-list">
+                    <!-- Phone Input Form and Order List will be loaded here by loadUserOrders() / viewMyOrders() -->
+                </div>
+            </div>
+
+            <!-- വില്പനക്കാരൻ (Seller) സ്ക്രീൻ -->
+            <div id="seller-screen" class="screen p-3">
+                <h3 class="text-success mb-3"><i class="fas fa-store"></i> വിൽപനക്കാരന്റെ ഡാഷ്‌ബോർഡ്</h3>
+                
+                <!-- NEW: Seller Details Card -->
+                <div id="seller-details-card" class="card mb-3 p-3 border-left border-primary">
+                    <!-- Seller details will be loaded here by loadSellerDetails() -->
+                    <p class="text-center text-muted small">വിവരങ്ങൾ ലോഡ് ചെയ്യുന്നു...</p>
+                </div>
+                <!-- END NEW: Seller Details Card -->
+
+                <!-- NEW: Admin Support Button with WhatsApp color -->
+                <button class="btn btn-success w-100 mb-3" onclick="contactAdminOnWhatsApp()">
+                    <i class="fab fa-whatsapp"></i> അഡ്മിൻ സപ്പോർട്ട്
+                </button>
+                
+                <!-- Product Listing Form -->
+                <div class="card mb-4 border-left border-success">
+                    <div class="card-body">
+                        <h5 class="card-title text-success"><i class="fas fa-upload"></i> ഉൽപ്പന്നം ലിസ്റ്റ് ചെയ്യുക</h5>
+                        <form id="productForm">
+                            <input type="text" id="sellerProductName" class="form-control mb-2" placeholder="ഉൽപ്പന്നത്തിന്റെ പേര്" required>
+                            <input type="number" id="sellerProductPrice" class="form-control mb-2" placeholder="വില (₹)" required>
+                            <select id="sellerProductJilla" class="form-select mb-2" required>
+                                <!-- Jilla Options populated by JS -->
+                            </select>
+                            <input type="text" id="sellerProductArea" class="form-control mb-2" placeholder="ഡെലിവറി ഏരിയകൾ (Comma Seperated)" required>
+                            <input type="number" id="sellerDeliveryCharge" class="form-control mb-2" placeholder="ഡെലിവറി ചാർജ് (₹)" required>
+                            <textarea id="sellerProductDescription" class="form-control mb-2" rows="2" placeholder="വിവരണം"></textarea>
+                            
+                            <label class="form-label small">ഉയർന്ന നിലവാരമുള്ള ഫോട്ടോ:</label>
+                            <input type="file" id="sellerProductImage" class="form-control mb-2" accept="image/*" required>
+                            
+                            <!-- Fee Information -->
+                            <div class="alert alert-danger small mt-2">
+                                <i class="fas fa-exclamation-triangle"></i> ഉൽപ്പന്നം ലിസ്റ്റ് ചെയ്യാൻ **₹25/-** ഫീസ് ഉണ്ട്. QR കോഡ് സ്കാൻ ചെയ്ത് അടയ്ക്കുക.
+                            </div>
+                            
+                            <!-- Pay Button -->
+                            <button type="button" id="payFeeButton" class="btn w-100 mb-2" onclick="payListingFee()">
+                                <i class="fas fa-qrcode"></i> ₹25/- അടയ്ക്കുക (QR Code / UPI)
+                            </button>
+                            
+                            <!-- Fee Status Message -->
+                            <div id="feeStatusMessage" class="small text-center mb-2"></div>
+                            
+                            <!-- Submit Button - Disabled by default -->
+                            <button type="submit" id="listProductButton" class="btn btn-success w-100" disabled>
+                                <i class="fas fa-paper-plane"></i> ലിസ്റ്റ് ചെയ്യുക
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Seller's Products List -->
+                <div id="seller-product-list" class="mt-4 mb-4">
+                    <!-- Dynamic content will be loaded here by loadSellerProducts() -->
+                </div>
+                
+                <!-- New Orders List -->
+                <div id="orderManagement">
+                    <!-- Orders will be loaded here by loadSellerOrderList() -->
+                </div>
+                
+                <!-- Logout Button -->
+                <button class="btn btn-danger w-100 mt-4" onclick="logoutSeller()"><i class="fas fa-sign-out-alt"></i> ലോഗൗട്ട് ചെയ്യുക</button>
+            </div>
+            
+            <!-- പ്രൊഡക്റ്റ് വിശദാംശ സ്ക്രീൻ (Product Detail Screen) -->
+            <div id="product-detail-screen" class="screen p-3">
+                <div id="product-detail-content" class="card p-3">
+                    <!-- Product details will be loaded here by viewProduct() -->
+                </div>
+            </div>
+
+            <!-- ചെക്കൗട്ട് ഫോം സ്ക്രീൻ (Single Item Checkout Form) -->
+            <div id="checkout-form-screen" class="screen p-3">
+                <div id="singleItemCheckoutSummary" class="card p-3 mb-3">
+                    <!-- Summary loaded by goToCheckout() -->
+                </div>
+                <h4 class="text-success mb-3"><i class="fas fa-map-marked-alt"></i> ഡെലിവറി വിലാസം</h4>
+                <form id="checkoutForm">
+                    <input type="text" id="checkoutName" class="form-control mb-2" placeholder="നിങ്ങളുടെ പേര്" required>
+                    <input type="tel" id="checkoutPhone" class="form-control mb-2" placeholder="ഫോൺ നമ്പർ" required>
+                    
+                    <textarea id="checkoutAddress" class="form-control mb-2" rows="2" placeholder="വീട്ടുപേര്, സ്ട്രീറ്റ്" required></textarea>
+                    
+                    <input type="text" id="checkoutPincode" class="form-control mb-2" placeholder="പിൻകോഡ്" required>
+                    
+                    <select id="checkoutJilla" class="form-select mb-2" required>
+                        <!-- Options populated by JS -->
+                    </select>
+                    <input type="text" id="checkoutArea" class="form-control mb-3" placeholder="ഏരിയ / പോസ്റ്റ് ഓഫീസ്" required>
+                    
+                    <button type="submit" class="btn btn-success btn-lg w-100"><i class="fas fa-shipping-fast"></i> ഓർഡർ ഉറപ്പിക്കുക</button>
+                </form>
+            </div>
+            
+            <!-- കാർട്ട് ചെക്കൗട്ട് ഫോം സ്ക്രീൻ (Cart Checkout Form) -->
+            <div id="cart-checkout-screen" class="screen p-3">
+                <div id="cartCheckoutSummary" class="card p-3 mb-3">
+                    <!-- Cart Summary loaded by goToCheckout(true) -->
+                </div>
+                <h4 class="text-success mb-3"><i class="fas fa-map-marked-alt"></i> ഡെലിവറി വിലാസം</h4>
+                <form id="cartCheckoutForm">
+                    <input type="text" id="cartCheckoutName" class="form-control mb-2" placeholder="നിങ്ങളുടെ പേര്" required>
+                    <input type="tel" id="cartCheckoutPhone" class="form-control mb-2" placeholder="ഫോൺ നമ്പർ" required>
+                    
+                    <textarea id="cartCheckoutAddress" class="form-control mb-2" rows="2" placeholder="വീട്ടുപേര്, സ്ട്രീറ്റ്" required></textarea>
+                    
+                    <input type="text" id="cartCheckoutPincode" class="form-control mb-2" placeholder="പിൻകോഡ്" required>
+                    
+                    <select id="cartCheckoutJilla" class="form-select mb-2" required>
+                        <!-- Options populated by JS -->
+                    </select>
+                    <input type="text" id="cartCheckoutArea" class="form-control mb-3" placeholder="ഏരിയ / പോസ്റ്റ് ഓഫീസ്" required>
+                    
+                    <button type="submit" class="btn btn-success btn-lg w-100"><i class="fas fa-shipping-fast"></i> ഓർഡർ ഉറപ്പിക്കുക</button>
+                </form>
+            </div>
+
+            <!-- ഉൽപ്പന്നം എഡിറ്റ് സ്ക്രീൻ (Product Edit Screen) -->
+            <div id="edit-product-screen" class="screen p-3">
+                <h3 class="text-warning mb-3"><i class="fas fa-edit"></i> ഉൽപ്പന്നം എഡിറ്റ് ചെയ്യുക</h3>
+                <div class="card mb-4 border-left border-warning">
+                    <div class="card-body">
+                        <form id="editProductForm">
+                            <input type="hidden" id="editProductId">
+                            <input type="text" id="editProductName" class="form-control mb-2" placeholder="ഉൽപ്പന്നത്തിന്റെ പേര്" required>
+                            <input type="number" id="editProductPrice" class="form-control mb-2" placeholder="വില (₹)" required>
+                            <select id="editProductJilla" class="form-select mb-2" required>
+                                <!-- Jilla Options populated by JS -->
+                            </select>
+                            <input type="text" id="editProductArea" class="form-control mb-2" placeholder="ഡെലിവറി ഏരിയകൾ (Comma Seperated)" required>
+                            <input type="number" id="editDeliveryCharge" class="form-control mb-2" placeholder="ഡെലിവറി ചാർജ് (₹)" required>
+                            <textarea id="editProductDescription" class="form-control mb-2" rows="2" placeholder="വിവരണം"></textarea>
+                            
+                            <label class="form-label small">നിലവിലെ ഫോട്ടോ:</label>
+                            <img id="currentProductImage" src="https://via.placeholder.com/100x100?text=Current+Image" style="max-width: 100px; display: block; margin-bottom: 10px;">
+
+                            <label class="form-label small">പുതിയ ഫോട്ടോ (വേണമെങ്കിൽ മാത്രം):</label>
+                            <input type="file" id="editProductImage" class="form-control mb-2" accept="image/*">
+                            
+                            <button type="submit" class="btn btn-warning w-100"><i class="fas fa-save"></i> മാറ്റങ്ങൾ സേവ് ചെയ്യുക</button>
+                            <button type="button" class="btn btn-secondary w-100 mt-2" onclick="switchScreen('seller-screen')"><i class="fas fa-times"></i> കാൻസൽ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Bottom Navigation Bar -->
+        <div class="bottom-nav">
+            <a class="nav-item-bottom active" data-screen="home-screen"><i class="fas fa-home fa-lg"></i><br>Home</a>
+            <a class="nav-item-bottom" data-screen="cart-screen">
+                <i class="fas fa-shopping-cart fa-lg"></i>
+                <span class="cart-badge" id="cart-badge" style="display: none;">0</span>
+                <br>Cart
+            </a>
+            <a class="nav-item-bottom" data-screen="orders-screen"><i class="fas fa-receipt fa-lg"></i><br>Orders</a>
+            <a class="nav-item-bottom" data-screen="seller-screen"><i class="fas fa-store fa-lg"></i><br>വിൽപനക്കാരൻ</a>
+        </div>
+    </div>
+    
+    <!-- ********** UPI Payment Modal ********** -->
+    <div class="modal fade" id="upiModal" tabindex="-1" aria-labelledby="upiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title" id="upiModalLabel"><i class="fas fa-qrcode"></i> ലിസ്റ്റിംഗ് ഫീസ് അടയ്ക്കുക (₹25/-)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="text-muted">താഴെ കാണുന്ന QR കോഡ് സ്കാൻ ചെയ്ത് **₹25/-** അടയ്ക്കുക.</p>
+                    
+                    <!-- QR Code Image (Uses hardcoded URL) -->
+                    <img id="upiQrCode" src="https://via.placeholder.com/300x300?text=Scan+to+Pay+Rs.25+via+UPI" alt="UPI QR Code" class="img-fluid border p-2 mb-3">
+                    
+                    <!-- UPI Deep Link Button (Uses hardcoded ADMIN_UPI_PAYMENT_LINK) -->
+                    <a href="upi://" id="openUpiAppButton" target="_blank" class="btn btn-primary w-100 mb-2">
+                        <i class="fas fa-external-link-alt"></i> UPI ആപ്പ് തുറക്കുക
+                    </a>
+
+                    <p class="small text-danger">ശ്രദ്ധിക്കുക: പേയ്‌മെന്റ് നടത്തിയ ശേഷം മാത്രം താഴെയുള്ള 'ഞാൻ അടച്ചു' ബട്ടൺ ക്ലിക്കുചെയ്യുക.</p>
+                    
+                    <!-- Confirmation Button (calls the simulation function and closes the modal) -->
+                    <button type="button" class="btn btn-success w-100" data-bs-dismiss="modal" onclick="simulatePaymentSuccess()">
+                         <i class="fas fa-check-circle"></i> ഞാൻ അടച്ചു
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ********** END OF UPI MODAL ********** -->
+
+    <!-- ********** NEW: Supabase Alert Modal (Mimics Screenshot) ********** -->
+    <div class="modal fade" id="supabaseAlertModal" tabindex="-1" aria-labelledby="supabaseAlertModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <!-- Header is just the word "Alert" -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="supabaseAlertModalLabel">Alert</h5>
+                </div>
+                <!-- Body for the main message -->
+                <div class="modal-body">
+                    <p id="supabaseAlertBody" class="mb-0"></p>
+                </div>
+                <!-- Footer for the OK button -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="supabaseAlertOkButton">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ********** END OF NEW ALERT MODAL ********** -->
+
+    <!-- Bootstrap JS CDN (Must be loaded last) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+</body>
+</html>
